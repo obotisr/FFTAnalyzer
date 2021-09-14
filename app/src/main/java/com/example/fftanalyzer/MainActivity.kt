@@ -63,12 +63,12 @@ class MainActivity : AppCompatActivity() {
         val pointNum = 2F.pow(maxBit).toUInt()
         // 数据初始化
         var pointData: Array<Float> = Array(pointNum.toInt()) { it.toFloat() }
-        Log.d("codeRev", "原始数据${pointData.contentToString()}")
+        Log.d("mainActivity", "原始数据${pointData.contentToString()}")
         // 类初始化
         val mFFT = MyFFT()
         // 反向编码转化
         pointData = mFFT.binaryBitReverse(pointData, pointNum, maxBit)
-        Log.d("codeRev", "二进制反序${pointData.contentToString()}")
+        Log.d("mainActivity", "二进制反序${pointData.contentToString()}")
 
         /* 码位倒序end */
 
