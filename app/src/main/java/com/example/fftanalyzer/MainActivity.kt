@@ -77,7 +77,7 @@ class MainActivity : AppCompatActivity() {
             mLineChart!!.data.dataSetCount > 0) {
             set = mLineChart!!.data.getDataSetByIndex(0) as LineDataSet?
             set!!.values = values
-            mLineChart!!.getData().notifyDataChanged()
+            mLineChart!!.data.notifyDataChanged()
             mLineChart!!.notifyDataSetChanged()
         } else {
             set = LineDataSet(values, "测试线")
