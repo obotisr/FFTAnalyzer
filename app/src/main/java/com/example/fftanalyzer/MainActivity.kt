@@ -54,8 +54,6 @@ class MainActivity : AppCompatActivity() {
             values.add(Entry(time, signal))
         }
 
-        // 复数测试
-//        val z1 = 4 + 3.I
 
         /* 码位倒序 */
 
