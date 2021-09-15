@@ -26,12 +26,15 @@ import kotlin.math.pow
 
 class MainActivity : AppCompatActivity() {
 
+    private val tag = "MainActivity"
+
     private var mLineChart: LineChart? = null
 //    private val mPI: Float = 3.1415926535898F
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        Log.d(tag, "onCreate")
 
         // 阻止屏幕休眠
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
@@ -53,9 +56,44 @@ class MainActivity : AppCompatActivity() {
         val cda = ChartDataAdapter(applicationContext, list)
         lv.adapter = cda
 
-
+        this.onRestart()
 //        initChart()
 //        setData(500)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        Log.d(tag, "onResume")
+
+        val lv: ListView = findViewById(R.id.listView1)
+
+        val list: ArrayList<ChartItem> = ArrayList<ChartItem>()
+
+        list.add(LineChartItem(generateDataLine(1), applicationContext))
+        list.add(LineChartItem(generateDataLine(2), applicationContext))
+
+        val cda = ChartDataAdapter(applicationContext, list)
+        lv.adapter = cda
+    }
+
+    override fun onPause() {
+        super.onPause()
+        Log.d(tag, "onPause")
+    }
+
+    override fun onStop() {
+        super.onStop()
+        Log.d(tag, "onStop")
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.d(tag, "onDestroy")
+    }
+
+    override fun onRestart() {
+        super.onRestart()
+        Log.d(tag, "onRestart")
     }
 
     private fun setData(count: Int) {

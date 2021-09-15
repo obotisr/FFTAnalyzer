@@ -75,7 +75,8 @@ public class LineChartItem extends ChartItem {
         holder.chart.setData((LineData) mChartData);
 
         // do not forget to refresh the chart
-        // holder.chart.invalidate();
+//        holder.chart.notifyDataSetChanged();
+//        holder.chart.invalidate();
         holder.chart.animateX(750);
 
         return convertView;
