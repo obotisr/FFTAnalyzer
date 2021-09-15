@@ -1,20 +1,25 @@
 package com.example.fftanalyzer
 
+import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.Drawable
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.View
+import android.view.ViewGroup
 import android.view.WindowManager
+import android.widget.ArrayAdapter
+import android.widget.ListView
+import com.example.fftanalyzer.chart.ChartItem
+import com.example.fftanalyzer.chart.LineChartItem
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.Description
 import com.github.mikephil.charting.components.XAxis
-import com.github.mikephil.charting.data.Entry
-import com.github.mikephil.charting.data.LineData
-import com.github.mikephil.charting.data.LineDataSet
+import com.github.mikephil.charting.data.*
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet
+import com.github.mikephil.charting.utils.ColorTemplate
 import java.util.*
-//import org.kotlinmath.*
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.pow
@@ -38,9 +43,19 @@ class MainActivity : AppCompatActivity() {
         supportActionBar?.hide()
 
         //
-        mLineChart = findViewById(R.id.line_chart)
-        initChart()
-        setData(500)
+        val lv: ListView = findViewById(R.id.listView1)
+
+        val list: ArrayList<ChartItem> = ArrayList<ChartItem>()
+
+        list.add(LineChartItem(generateDataLine(1), applicationContext))
+        list.add(LineChartItem(generateDataLine(2), applicationContext))
+
+        val cda = ChartDataAdapter(applicationContext, list)
+        lv.adapter = cda
+
+
+//        initChart()
+//        setData(500)
     }
 
     private fun setData(count: Int) {
@@ -50,7 +65,8 @@ class MainActivity : AppCompatActivity() {
 
         for (i in 0..count) {
             val time: Float = i.toFloat() / frequency
-            val signal: Float = cos(2F* PI.toFloat()*time) - 0.3F* cos(2F* PI.toFloat()*3F*time)
+            val signal: Float =
+                cos(2F * PI.toFloat() * time) - 0.3F * cos(2F * PI.toFloat() * 3F * time)
             values.add(Entry(time, signal))
         }
 
@@ -74,7 +90,8 @@ class MainActivity : AppCompatActivity() {
 
         val set: LineDataSet?
         if (mLineChart!!.data != null &&
-            mLineChart!!.data.dataSetCount > 0) {
+            mLineChart!!.data.dataSetCount > 0
+        ) {
             set = mLineChart!!.data.getDataSetByIndex(0) as LineDataSet?
             set!!.values = values
             mLineChart!!.data.notifyDataChanged()
@@ -85,7 +102,7 @@ class MainActivity : AppCompatActivity() {
 //            使线条以虚线模式绘制，例如 “ - - - - - ”。
 //             如果硬件加速关闭，这个工作就可以了。请记住，硬件加速提高了性能。
 //             lineLength线段的长度     spaceLength之间的空格长度
-            set!!.mode = LineDataSet.Mode.LINEAR
+            set.mode = LineDataSet.Mode.LINEAR
 //            set!!.enableDashedLine(10f, 5f, 0f)
 //            set.enableDashedHighlightLine(10f, 5f, 0f)
             set.setCircleColor(Color.BLACK)
@@ -130,10 +147,10 @@ class MainActivity : AppCompatActivity() {
         description.text = "pika"
         description.textColor = Color.RED
         description.textSize = 20f
-        mLineChart!!.description=description
+        mLineChart!!.description = description
 
         // 不显示描述
-        mLineChart!!.getDescription().setEnabled(false)
+        mLineChart!!.description.isEnabled = false
         //x轴
         val xAxis = mLineChart!!.xAxis
         mLineChart!!.defaultValueFormatter
@@ -182,6 +199,96 @@ class MainActivity : AppCompatActivity() {
 //        axisLeft.addLimitLine(ll1)
         //x轴动画
         mLineChart!!.animateX(200)
+    }
+
+    /** adapter that supports 3 different item types  */
+    private class ChartDataAdapter(
+        context: Context?,
+        objects: List<ChartItem?>?,
+    ) :
+        ArrayAdapter<ChartItem?>(context!!, 0, objects!!) {
+        override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
+            return getItem(position)!!.getView(position, convertView, context)
+        }
+
+        override fun getItemViewType(position: Int): Int {
+            // return the views type
+            val ci = getItem(position)
+            return ci?.itemType ?: 0
+        }
+
+        override fun getViewTypeCount(): Int {
+            return 3 // we have 3 different item-types
+        }
+    }
+
+    /**
+     * generates a random ChartData object with just one DataSet
+     *
+     * @return Line data
+     */
+    private fun generateDataLine(cnt: Int): LineData {
+        val values1 = ArrayList<Entry>()
+        for (i in 0..11) {
+            values1.add(Entry(i.toFloat(),
+                ((Math.random() * 65).toInt() + 40).toFloat()))
+        }
+        val d1 = LineDataSet(values1, "New DataSet $cnt, (1)")
+        d1.lineWidth = 2.5f
+        d1.circleRadius = 4.5f
+        d1.highLightColor = Color.rgb(244, 117, 117)
+        d1.setDrawValues(false)
+        val values2 = ArrayList<Entry>()
+        for (i in 0..11) {
+            values2.add(Entry(i.toFloat(), values1[i].y - 30))
+        }
+        val d2 = LineDataSet(values2, "New DataSet $cnt, (2)")
+        d2.lineWidth = 2.5f
+        d2.circleRadius = 4.5f
+        d2.highLightColor = Color.rgb(244, 117, 117)
+        d2.color = ColorTemplate.VORDIPLOM_COLORS[0]
+        d2.setCircleColor(ColorTemplate.VORDIPLOM_COLORS[0])
+        d2.setDrawValues(false)
+        val sets = ArrayList<ILineDataSet>()
+        sets.add(d1)
+        sets.add(d2)
+        return LineData(sets)
+    }
+
+    /**
+     * generates a random ChartData object with just one DataSet
+     *
+     * @return Bar data
+     */
+    private fun generateDataBar(cnt: Int): BarData {
+        val entries = ArrayList<BarEntry>()
+        for (i in 0..11) {
+            entries.add(BarEntry(i.toFloat(), ((Math.random() * 70).toInt() + 30).toFloat()))
+        }
+        val d = BarDataSet(entries, "New DataSet $cnt")
+        d.setColors(*ColorTemplate.VORDIPLOM_COLORS)
+        d.highLightAlpha = 255
+        val cd = BarData(d)
+        cd.barWidth = 0.9f
+        return cd
+    }
+
+    /**
+     * generates a random ChartData object with just one DataSet
+     *
+     * @return Pie data
+     */
+    private fun generateDataPie(): PieData {
+        val entries = ArrayList<PieEntry>()
+        for (i in 0..3) {
+            entries.add(PieEntry((Math.random() * 70 + 30).toFloat(), "Quarter " + (i + 1)))
+        }
+        val d = PieDataSet(entries, "")
+
+        // space between slices
+        d.sliceSpace = 2f
+        d.setColors(*ColorTemplate.VORDIPLOM_COLORS)
+        return PieData(d)
     }
 
 }
